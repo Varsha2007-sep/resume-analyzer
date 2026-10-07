@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% from "_icons.html" import icon %}
+{% block title %}About{% endblock %}
+{% block content %}
+<section class="section tight"><div class="container narrow">
+  <div class="page-head"><h1>About AI Resume Analyzer</h1><p class="muted">Career and Skill Development project</p></div>
+  <div class="grid grid-2">
+    <article class="card pad"><h3>Problem</h3><p>Students struggle to create ATS-friendly resumes. Applicant Tracking Systems filter resumes by keywords and structure, and students rarely know why they are rejected.</p></article>
+    <article class="card pad"><h3>Solution</h3><p>AI Resume Analyzer compares a resume with a job description and provides actionable, honest recommendations, always telling users to add skills only if they genuinely have them.</p></article>
+  </div>
+  <div class="card pad mt"><h3>Benefits</h3>
+    <ul class="check-list cols"><li>{{ icon('check', 16) }} Better keyword matching</li><li>{{ icon('check', 16) }} Better resume structure</li><li>{{ icon('check', 16) }} Personalized suggestions</li><li>{{ icon('check', 16) }} Improved job relevance</li></ul></div>
+
+  <h2 class="mt-lg" id="overview">Project Overview</h2>
+  <div class="grid grid-2">
+    <article class="card pad"><h3>Problem</h3><p>Weak resumes are rejected by ATS systems.</p></article>
+    <article class="card pad"><h3>Existing Solution</h3><p>Students manually compare their resume with job descriptions.</p></article>
+    <article class="card pad"><h3>Proposed Solution</h3><p>AI Resume Analyzer automatically compares the resume and job description and gives personalized recommendations.</p></article>
+    <article class="card pad"><h3>AI / NLP Usage</h3>
+      <ul class="plain"><li><b>Text extraction</b>: PDF and DOCX parsing</li><li><b>Keyword extraction</b>: frequency and n-gram analysis</li><li><b>Skill identification</b>: taxonomy with aliases</li><li><b>Similarity analysis</b>: TF-IDF cosine similarity</li><li><b>Recommendation generation</b>: rule-based rewriting</li></ul></article>
+  </div>
+
+  <h2 class="mt-lg">NLP workflow</h2>
+  <ol class="flow">
+    {% for s in ['Upload resume','Extract resume text','Paste job description','Analyze job description','Extract skills and keywords','Compare resume and job description','Calculate ATS score','Find missing keywords','Analyze resume strengths','Generate improvement suggestions','Display dashboard'] %}<li>{{ s }}</li>{% endfor %}
+  </ol>
+
+  <h2 class="mt-lg">How the ATS score is calculated</h2>
+  <div class="card pad">
+    {% for name, key in [('Keyword Match','keyword'),('Skills Relevance','skills'),('Job Description Relevance','relevance'),('Education/Experience Relevance','education'),('Resume Structure','structure')] %}
+    <div class="weight-row"><span>{{ name }}</span><div class="bar"><i data-w="{{ weights[key] * 2.5 }}"></i></div><b>{{ weights[key] }}%</b></div>
+    {% endfor %}
+    <p class="muted small">Score = Σ (component % × weight). Nothing is random: the same resume and job description always give the same score.</p>
+  </div>
+</div></section>
+{% endblock %}
+{% block scripts %}<script>window.addEventListener('load',()=>{document.querySelectorAll('.bar i[data-w]').forEach(b=>b.style.width=b.dataset.w+'%')})</script>{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% from "_icons.html" import icon %}
+{% block title %}Not found{% endblock %}
+{% block content %}
+<section class="section"><div class="container empty">
+  <h1>Page not found</h1><p class="muted">That page or analysis does not exist (it may have been deleted).</p>
+  <a class="btn btn-primary" href="{{ url_for('analyzer_page') }}">Start an analysis</a>
+</div></section>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}{% from "_icons.html" import icon %}
+{% block title %}Analyze Your Resume. Match Your Dream Job.{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="pill">{{ icon('shield', 16) }} Honest, explainable ATS analysis</span>
+      <h1>Analyze Your Resume.<br><span class="grad-text">Match Your Dream Job.</span></h1>
+      <p class="lead">AI-powered resume analysis to help students improve their ATS compatibility and increase their chances of getting shortlisted.</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('analyzer_page') }}" class="btn btn-primary btn-lg">Analyze My Resume {{ icon('arrow', 18) }}</a>
+        <a href="#how-it-works" class="btn btn-ghost btn-lg">How It Works</a>
+      </div>
+      <ul class="hero-points">
+        <li>{{ icon('check', 16) }} PDF &amp; DOCX supported</li>
+        <li>{{ icon('check', 16) }} Transparent score formula</li>
+        <li>{{ icon('check', 16) }} Never suggests fake skills</li>
+      </ul>
+    </div>
+    <div class="hero-visual" aria-label="Illustrative preview of the results dashboard">
+      <div class="preview card">
+        <div class="preview-head"><span class="dots"><i></i><i></i><i></i></span><span class="muted small">Illustrative preview</span></div>
+        <div class="preview-body">
+          <div class="ring ring-sm" data-score="82" data-tone="good">
+            <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" cx="60" cy="60" r="52"/></svg>
+            <div class="ring-label"><strong>82</strong><span>/ 100</span></div>
+          </div>
+          <div class="preview-bars">
+            {% for n, v in [('Keyword Match', 85), ('Skills Match', 78), ('Job Relevance', 80), ('Structure', 90)] %}
+            <div class="mini-bar"><div class="mini-top"><span>{{ n }}</span><b>{{ v }}%</b></div><div class="bar"><i data-w="{{ v }}"></i></div></div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="chips"><span class="chip chip-ok">Python</span><span class="chip chip-ok">SQL</span><span class="chip chip-ok">Git</span><span class="chip chip-miss">Docker</span><span class="chip chip-miss">REST API</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head"><h2>Everything you need to beat the ATS</h2><p class="muted">Every result is calculated from your actual resume and the job description you paste.</p></div>
+    <div class="grid grid-5">
+      {% for icn, t, d in [
+        ('target','ATS Score','A 0-100 match score built from five weighted, visible components.'),
+        ('search','Keyword Analysis','See which job keywords you already have and which are missing.'),
+        ('layers','Skill Matching','Technical, soft and tool skills compared side by side.'),
+        ('bulb','AI Suggestions','Specific, honest tips tied to your own resume lines.'),
+        ('edit','Resume Improvement','Before → After rewrites that never invent experience.')] %}
+      <article class="card feature"><span class="icon-box">{{ icon(icn, 22) }}</span><h3>{{ t }}</h3><p class="muted">{{ d }}</p></article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="how-it-works">
+  <div class="container">
+    <div class="section-head"><h2>How It Works</h2><p class="muted">Four steps, under a minute.</p></div>
+    <div class="steps">
+      {% for n, t, d in [(1,'Upload Resume','Drop in your PDF or DOCX resume.'),(2,'Add Job Description','Paste the posting you are applying to.'),(3,'AI Analyzes Resume','Text extraction, keyword and skill matching, similarity scoring.'),(4,'Get Personalized Results','Score, gaps, strengths and rewrite suggestions.')] %}
+      <div class="step"><span class="step-num">{{ n }}</span><h3>{{ t }}</h3><p class="muted">{{ d }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container cta card">
+    <div><h2>Ready to see how your resume scores?</h2><p class="muted">Try it with the built-in sample resume and job description, or your own.</p></div>
+    <a href="{{ url_for('analyzer_page') }}" class="btn btn-primary btn-lg">Analyze My Resume {{ icon('arrow', 18) }}</a>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script>window.addEventListener('load',()=>{document.querySelectorAll('.bar i[data-w]').forEach(b=>b.style.width=b.dataset.w+'%')})</script>{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}{% from "_icons.html" import icon %}
+{% block title %}Analysis Results{% endblock %}
+{% block content %}
+{% set comps = [('Keyword Match','keyword'),('Skills Relevance','skills'),('Job Description Relevance','relevance'),('Education / Experience Relevance','education'),('Resume Structure','structure')] %}
+<section class="section tight"><div class="container">
+  <div class="page-head row-between">
+    <div><h1>Resume Analysis Results</h1>
+      <p class="muted">{{ r.job_title }} · {{ r.resume_name }} · {{ row.created_at|pretty_date }}</p></div>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="{{ url_for('report', aid=row.id) }}">{{ icon('download', 18) }} Download Analysis Report</a>
+      <a class="btn btn-ghost" href="{{ url_for('analyzer_page') }}">New analysis</a>
+    </div>
+  </div>
+
+  <div class="card score-hero">
+    <div class="ring ring-lg" data-score="{{ r.overall }}" data-tone="{{ tone }}">
+      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" cx="60" cy="60" r="52"/></svg>
+      <div class="ring-label"><strong data-count="{{ r.overall }}">{{ r.overall }}</strong><span>/ 100</span></div>
+    </div>
+    <div class="score-text">
+      <span class="eyebrow">ATS MATCH SCORE</span>
+      <h2>{{ r.overall }} / 100 · <span class="tone-text tone-{{ tone }}">{{ label }}</span></h2>
+      <p class="muted">Calculated from your resume and this job description using the weighted formula shown below.</p>
+    </div>
+    <div class="metrics">
+      {% for n, k in [('Skills Match','skills'),('Keyword Match','keyword'),('Job Relevance','relevance'),('Resume Structure','structure')] %}
+      <div class="metric"><div class="mini-top"><span>{{ n }}</span><b>{{ r.dashboard[k] }}%</b></div><div class="bar"><i data-w="{{ r.dashboard[k] }}"></i></div></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <nav class="subnav" aria-label="Sections">
+    <a href="#score">Score</a><a href="#keywords">Keywords</a><a href="#skills">Skills</a><a href="#strengths">Strengths</a><a href="#checklist">ATS Checklist</a><a href="#suggestions">Suggestions</a>
+  </nav>
+
+  <section id="score" class="block">
+    <h2>Score calculation</h2>
+    <div class="card table-wrap">
+      <table class="table">
+        <thead><tr><th>Component</th><th>Weight</th><th>Your match</th><th class="w-bar">Breakdown</th><th>Points</th></tr></thead>
+        <tbody>
+        {% for name, k in comps %}
+          <tr><td data-label="Component">{{ name }}</td><td data-label="Weight">{{ r.scores[k].weight }}%</td><td data-label="Your match">{{ r.scores[k].pct }}%</td>
+            <td class="w-bar"><div class="bar"><i data-w="{{ r.scores[k].pct }}"></i></div></td><td data-label="Points"><b>{{ r.scores[k].points }}</b> / {{ r.scores[k].weight }}</td></tr>
+        {% endfor %}
+          <tr class="total"><td colspan="4">ATS Match Score (sum of points, rounded)</td><td><b>{{ r.overall }}</b> / 100</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted small">Keyword Match = weighted share of job keywords found. Skills Relevance = weighted share of required skills found (skills shown in projects/experience get full credit). Job Relevance = TF-IDF cosine similarity (similarity {{ r.meta.cosine }}, scaled so 0.50 = 100%).</p>
+  </section>
+
+  <section id="keywords" class="block">
+    <h2>Keyword analysis</h2>
+    <div class="grid grid-2 top">
+      <div class="card pad">
+        <h3 class="ok-title">{{ icon('check', 18) }} Matched keywords <span class="count">{{ r.keywords.matched|length }}</span></h3>
+        {% if r.keywords.matched %}<div class="chips">{% for k in r.keywords.matched %}<span class="chip chip-ok">{{ k.name }}</span>{% endfor %}</div>
+        {% else %}<p class="muted">No job keywords were found in your resume.</p>{% endif %}
+      </div>
+      <div class="card pad">
+        <h3 class="miss-title">{{ icon('warn', 18) }} Missing keywords <span class="count">{{ r.keywords.missing|length }}</span></h3>
+        {% if r.keywords.missing %}<div class="chips">{% for k in r.keywords.missing %}<span class="chip chip-miss">{{ k.name }}</span>{% endfor %}</div>
+        {% else %}<p class="muted">Great, no missing keywords detected.</p>{% endif %}
+      </div>
+    </div>
+    {% if r.keywords.missing %}
+    <div class="callout">{{ icon('shield', 20) }}<div><strong>Be honest with your resume.</strong> Add this keyword only if you genuinely have experience, coursework, certification, or knowledge related to it.</div></div>
+    <div class="why-list">
+      {% for k in r.keywords.missing %}
+      <div class="card why"><div class="why-head"><b>{{ k.name }}</b><span class="badge badge-{{ k.importance }}">{{ 'Required' if k.importance == 'required' else 'Preferred' }}</span></div><p class="muted">{{ k.why }}</p></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <section id="skills" class="block">
+    <h2>Skills analysis</h2>
+    {% for key, title in [('technical','Technical Skills'),('tools','Tools & Technologies'),('soft','Soft Skills')] %}
+    <div class="card table-wrap mb">
+      <h3 class="table-title">{{ title }}</h3>
+      {% if r.skills_table[key] %}
+      <table class="table"><thead><tr><th>Required Skill</th><th>Resume</th><th>Status</th><th>Priority</th></tr></thead><tbody>
+        {% for s in r.skills_table[key] %}
+        <tr><td data-label="Required Skill"><b>{{ s.skill }}</b></td><td data-label="Resume">{{ s.resume }}{% if s.status == 'Matched' and not s.demonstrated and key != 'soft' %} <span class="muted small">(skills list only)</span>{% endif %}</td>
+          <td data-label="Status"><span class="status {{ 'st-ok' if s.status == 'Matched' else 'st-miss' }}">{{ s.status }}</span></td>
+          <td data-label="Priority">{{ 'Required' if s.importance == 'required' else 'Preferred' }}</td></tr>
+        {% endfor %}</tbody></table>
+      {% else %}<p class="muted pad-sm">No {{ title|lower }} were recognised in the job description.</p>{% endif %}
+    </div>
+    {% endfor %}
+    {% if r.additional_skills %}<div class="card pad"><h3>Additional skills on your resume</h3><p class="muted small">Not requested in this job description, but part of your profile.</p>
+      <div class="chips">{% for s in r.additional_skills %}<span class="chip">{{ s }}</span>{% endfor %}</div></div>{% endif %}
+  </section>
+
+  <section id="strengths" class="block">
+    <h2>Resume strengths &amp; weaknesses</h2>
+    <div class="grid grid-2 top">
+      <div class="stack">{% for s in r.strengths %}<div class="card note note-ok"><span class="note-icon">{{ icon('check', 18) }}</span><div><b>{{ s.title }}</b><p class="muted">{{ s.detail }}</p></div></div>{% endfor %}</div>
+      <div class="stack">{% for s in r.weaknesses %}<div class="card note note-warn"><span class="note-icon">{{ icon('warn', 18) }}</span><div><b>{{ s.title }}</b><p class="muted">{{ s.detail }}</p></div></div>{% else %}<div class="card note note-ok"><span class="note-icon">{{ icon('check', 18) }}</span><div><b>No major weaknesses found</b></div></div>{% endfor %}</div>
+    </div>
+  </section>
+
+  <section id="checklist" class="block">
+    <h2>ATS checklist</h2>
+    <div class="grid grid-3">
+      {% for c in r.checklist %}<div class="card check-item {{ 'ok' if c.ok else 'bad' }}"><span class="check-mark">{{ icon('check' if c.ok else 'x', 16) }}</span><div><b>{{ c.label }}</b><p class="muted small">{{ c.detail }}</p></div></div>{% endfor %}
+    </div>
+    {% if r.warnings %}<div class="warn-list">{% for w in r.warnings %}<div class="warn-item">{{ icon('warn', 16) }} {{ w }}</div>{% endfor %}</div>{% endif %}
+  </section>
+
+  <section id="suggestions" class="block">
+    <h2>Improvement suggestions</h2>
+    <div class="callout">{{ icon('info', 20) }}<div>Suggestions only reword what is already on your resume. Replace any <code>[bracketed]</code> text with true details, and never add numbers, tools or achievements you cannot back up.</div></div>
+    {% for w in r.suggestions.rewrites %}
+    <div class="card rewrite">
+      <div class="rw-col"><span class="eyebrow">{{ 'EXAMPLE PATTERN' if w.template else 'CURRENT' }}</span><p class="before">“{{ w.before }}”</p></div>
+      <span class="rw-arrow">{{ icon('arrow', 20) }}</span>
+      <div class="rw-col"><span class="eyebrow good">IMPROVED</span><p class="after" id="rw{{ loop.index }}">{{ w.after }}</p>
+        <button class="btn btn-ghost btn-sm" data-copy="#rw{{ loop.index }}">{{ icon('copy', 16) }} Copy</button></div>
+    </div>
+    {% else %}<p class="muted">No weak phrasing detected in your bullet points.</p>{% endfor %}
+    {% if r.suggestions.keyword_tips %}
+    <h3 class="mt">If you genuinely have these skills</h3>
+    <div class="grid grid-2">{% for t in r.suggestions.keyword_tips %}<div class="card pad"><b>{{ t.skill }}</b><p class="muted small" id="kt{{ loop.index }}">{{ t.example }}</p>
+      <button class="btn btn-ghost btn-sm" data-copy="#kt{{ loop.index }}">{{ icon('copy', 16) }} Copy template</button></div>{% endfor %}</div>{% endif %}
+    {% if r.suggestions.general %}<h3 class="mt">General recommendations</h3><ul class="reco">{% for g in r.suggestions.general %}<li>{{ icon('bulb', 16) }} {{ g }}</li>{% endfor %}</ul>{% endif %}
+  </section>
+</div></section>
+{% endblock %}

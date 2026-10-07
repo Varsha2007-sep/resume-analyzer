@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% from "_icons.html" import icon %}
+{% block title %}Analysis History{% endblock %}
+{% block content %}
+<section class="section tight"><div class="container">
+  <div class="page-head row-between"><div><h1>Analysis History</h1><p class="muted">Open any previous result. Resume text is never stored, only results.</p></div>
+    <a href="{{ url_for('analyzer_page') }}" class="btn btn-primary">New analysis</a></div>
+  {% if rows %}
+  <div class="card table-wrap">
+    <table class="table">
+      <thead><tr><th>Resume Name</th><th>Job Title</th><th>ATS Score</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+        {% set lab, tone = score_label(r.ats_score) %}
+        <tr id="row-{{ r.id }}">
+          <td data-label="Resume"><span class="cell-icon">{{ icon('file', 16) }}</span> {{ r.resume_name }}</td>
+          <td data-label="Job Title">{{ r.job_title }}</td>
+          <td data-label="ATS Score"><span class="score-badge tone-{{ tone }}">{{ r.ats_score }}/100</span></td>
+          <td data-label="Date">{{ r.created_at|pretty_date }}</td>
+          <td class="actions"><a class="btn btn-ghost btn-sm" href="{{ url_for('results', aid=r.id) }}">Open</a>
+            <button class="icon-btn danger" data-delete="{{ r.id }}" aria-label="Delete analysis">{{ icon('trash', 16) }}</button></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card empty"><span class="icon-box big">{{ icon('clock', 26) }}</span><h3>No analyses yet</h3><p class="muted">Your completed analyses will appear here.</p>
+    <a href="{{ url_for('analyzer_page') }}" class="btn btn-primary">Analyze My Resume</a></div>
+  {% endif %}
+</div></section>
+{% endblock %}

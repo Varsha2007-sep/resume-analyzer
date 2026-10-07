@@ -1,0 +1,53 @@
+{% extends "base.html" %}{% from "_icons.html" import icon %}
+{% block title %}Resume Analyzer{% endblock %}
+{% block content %}
+<section class="section tight">
+  <div class="container">
+    <div class="page-head"><h1>Resume Analyzer</h1><p class="muted">Upload your resume and paste the job description. Both are required.</p></div>
+    <div id="formError" class="alert alert-error" role="alert" hidden></div>
+    <form id="analyzeForm" class="analyze-grid" novalidate>
+      <div class="card panel">
+        <h2 class="panel-title">{{ icon('upload', 20) }} Upload Your Resume</h2>
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload resume">
+          <span class="icon-box big">{{ icon('upload', 26) }}</span>
+          <p><strong>Drag &amp; drop your resume here</strong></p>
+          <p class="muted small">or <span class="link">browse files</span></p>
+          <p class="muted small">PDF or DOCX · max 5 MB</p>
+          <input type="file" id="resumeInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+        </div>
+        <div id="fileInfo" class="file-info" hidden>
+          <span class="icon-box">{{ icon('file', 20) }}</span>
+          <div class="file-meta"><strong id="fileName"></strong><span class="muted small" id="fileSize"></span></div>
+          <button type="button" id="removeFile" class="icon-btn" aria-label="Remove file">{{ icon('x', 18) }}</button>
+        </div>
+        <p class="muted small note">{{ icon('info', 14) }} Want to try it quickly? <a href="{{ url_for('samples', name='sample_resume.pdf') }}">Download the sample resume (PDF)</a> or <a href="{{ url_for('samples', name='sample_resume.docx') }}">DOCX</a>.</p>
+      </div>
+
+      <div class="card panel">
+        <h2 class="panel-title">{{ icon('file', 20) }} Job Description</h2>
+        <label class="label" for="jobTitle">Job title <span class="muted">(optional, detected automatically if empty)</span></label>
+        <input id="jobTitle" class="input" type="text" maxlength="80" placeholder="e.g. Junior Software Developer">
+        <label class="label" for="jobDesc">Job description</label>
+        <textarea id="jobDesc" class="input textarea" placeholder="Paste the job description here..."></textarea>
+        <div class="row-between">
+          <span class="muted small" id="wordCount">0 words</span>
+          <button type="button" id="sampleJd" class="btn btn-ghost btn-sm">Use sample job description</button>
+        </div>
+        <button type="submit" id="analyzeBtn" class="btn btn-primary btn-lg btn-block" disabled>Analyze Resume</button>
+        <p class="muted small center" id="hint">Add a resume and a job description to enable analysis.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div id="loading" class="overlay" hidden>
+  <div class="overlay-card card">
+    <div class="spinner"></div>
+    <h3>Analyzing your resume…</h3>
+    <ul class="progress-steps" id="progressSteps">
+      <li>Extracting resume text</li><li>Analyzing job description</li><li>Extracting skills and keywords</li>
+      <li>Comparing resume and job description</li><li>Calculating ATS score</li><li>Generating suggestions</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

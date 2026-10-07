@@ -1,0 +1,24 @@
+Job Title: Junior Software Developer
+
+About the Role
+We are looking for a Junior Software Developer to join our product engineering team and help build web applications used by thousands of customers.
+
+Responsibilities
+- Develop and maintain web applications using Python and JavaScript
+- Build and consume REST API services
+- Write SQL queries and work with relational databases
+- Collaborate with designers and other developers in an Agile team
+- Use Git for version control and take part in code reviews
+- Write clean, testable code and fix bugs
+
+Requirements
+- Bachelor's degree in Computer Science or a related field
+- Good knowledge of Python, Java and SQL
+- Understanding of data structures and algorithms
+- Experience with React for building user interfaces
+- Strong communication and teamwork skills
+- Problem solving mindset
+
+Nice to have
+- Experience with Docker and AWS
+- Knowledge of CI/CD pipelines
